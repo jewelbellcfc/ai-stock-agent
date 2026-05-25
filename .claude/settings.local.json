@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\python.exe\" --version)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" install numpy --only-binary :all: 2>&1 | Select-Object -Last 20)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" install --only-binary :all: vnstock pandas python-telegram-bot \"ta>=0.11.0\" langgraph langchain-anthropic langchain-core schedule 2>&1)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" install --only-binary :all: vnstock pandas python-telegram-bot langgraph langchain-anthropic langchain-core schedule 2>&1)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" install \"ta>=0.11.0\" 2>&1 | Select-Object -Last 10)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\python.exe\" \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\test_phase1.py\" 2>&1)",
+      "PowerShell($env:PYTHONUTF8 = \"1\"; & \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\python.exe\" \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\test_phase1.py\" 2>&1)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" show python-dotenv 2>&1 | Select-Object -First 3)",
+      "PowerShell(& \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\pip.exe\" install python-dotenv --only-binary :all: 2>&1 | Select-Object -Last 3)",
+      "PowerShell($env:PYTHONUTF8 = \"1\"; & \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\python.exe\" -c \"import sys; sys.path.insert\\(0, '.'\\); from config import TELEGRAM_BOT_TOKEN, ANTHROPIC_API_KEY, DB_PATH; print\\('TELEGRAM_BOT_TOKEN:', repr\\(TELEGRAM_BOT_TOKEN\\)\\); print\\('ANTHROPIC_API_KEY:', repr\\(ANTHROPIC_API_KEY\\)\\); print\\('DB_PATH:', DB_PATH\\)\" 2>&1)",
+      "PowerShell($env:PYTHONUTF8 = \"1\"; & \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\venv\\\\Scripts\\\\python.exe\" \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\vn-stock-agent\\\\test_phase2.py\" 2>&1)",
+      "Bash(python test_phase3.py)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(python -X utf8 test_phase3.py)",
+      "Bash(python -X utf8 -c \"from data.db import init_db; init_db\\(\\)\")",
+      "Bash(taskkill *)",
+      "PowerShell(Get-Process *)"
+    ]
+  }
+}

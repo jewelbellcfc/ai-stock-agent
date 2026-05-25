@@ -1,0 +1,27 @@
+{
+  "_comment": "Cập nhật file này hàng ngày trước khi chạy agent. Đơn vị avg_cost là VNĐ.",
+  "updated_at": "2025-01-01",
+  "holdings": [
+    {
+      "ticker": "VCB",
+      "quantity": 1000,
+      "avg_cost": 85000,
+      "sector": "Ngân hàng",
+      "note": "nắm dài hạn, cổ tức tốt"
+    },
+    {
+      "ticker": "HPG",
+      "quantity": 2000,
+      "avg_cost": 26000,
+      "sector": "Thép",
+      "note": "theo dõi chu kỳ thép"
+    },
+    {
+      "ticker": "FPT",
+      "quantity": 500,
+      "avg_cost": 118000,
+      "sector": "Công nghệ thông tin",
+      "note": "tăng trưởng dài hạn"
+    }
+  ]
+}
