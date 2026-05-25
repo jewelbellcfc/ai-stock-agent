@@ -53,7 +53,7 @@ def build_graph():
     """
 
     # ── Bước 1: Tạo graph với kiểu State ───────────────────
-    graph = StateGraph(AgentState)
+    graph = StateGraph[AgentState, None, AgentState, AgentState](AgentState)
 
     # ── Bước 2: Đăng ký các Node ───────────────────────────
     # add_node(tên, hàm_xử_lý)
