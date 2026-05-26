@@ -181,3 +181,32 @@ def log_report(report_type: str, content: str, sent_ok: bool = False):
             "INSERT INTO report_log (report_date, report_type, content, sent_ok) VALUES (?,?,?,?)",
             (today, report_type, content, 1 if sent_ok else 0)
         )
+
+
+def get_recent_reports(days: int = 3, report_type: str = None) -> list:
+    """Đọc báo cáo gần nhất từ report_log để dùng làm memory cho Agent."""
+    with sqlite3.connect(DB_PATH) as conn:
+        if report_type:
+            rows = conn.execute(
+                """SELECT report_date, report_type, content, sent_ok
+                   FROM report_log
+                   WHERE report_type = ?
+                   ORDER BY created_at DESC LIMIT ?""",
+                (report_type, days),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """SELECT report_date, report_type, content, sent_ok
+                   FROM report_log
+                   ORDER BY created_at DESC LIMIT ?""",
+                (days,),
+            ).fetchall()
+    return [
+        {
+            "date":    r[0],
+            "type":    r[1],
+            "content": (r[2] or "")[:500],
+            "sent_ok": bool(r[3]),
+        }
+        for r in rows
+    ]

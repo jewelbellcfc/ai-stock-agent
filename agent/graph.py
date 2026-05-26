@@ -26,7 +26,7 @@ def build_graph():
                                                                               │
               portfolio ──(không)──→ reporter → END
     """
-    graph = StateGraph(AgentState)
+    graph = StateGraph[AgentState, None, AgentState, AgentState](AgentState)
 
     graph.add_node("analyst",   analyst_node)
     graph.add_node("portfolio", portfolio_node)

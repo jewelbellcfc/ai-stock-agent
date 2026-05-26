@@ -24,7 +24,9 @@
       "Bash(python -c ' *)",
       "Bash(python main.py --portfolio)",
       "PowerShell(cd \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\"; $env:PYTHONIOENCODING = \"utf-8\"; python main.py --portfolio 2>&1)",
-      "PowerShell(cd \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\"; $env:PYTHONIOENCODING = \"utf-8\"; python main.py --agent 2>&1)"
+      "PowerShell(cd \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\"; $env:PYTHONIOENCODING = \"utf-8\"; python main.py --agent 2>&1)",
+      "Bash(python -m py_compile agent/nodes.py agent/graph.py agent/state.py data/db.py)",
+      "Bash(python main.py --agent)"
     ]
   }
 }
