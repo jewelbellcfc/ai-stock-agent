@@ -362,9 +362,14 @@ def reporter_node(state: AgentState) -> dict:
     draft = response.content if hasattr(response, "content") else str(response)
     print(f"[reporter_node] Draft: {len(draft)} ký tự")
 
+    # Gửi Telegram ngay (evaluator_node sẽ ghi đè nếu có trong graph)
+    _do_send(draft, market_data, portfolio)
+
     return {
         "messages":     [context_msg, response],
         "draft_report": draft,
+        "final_report": draft,
+        "report_sent":  True,
         "current_step": "done",
     }
 

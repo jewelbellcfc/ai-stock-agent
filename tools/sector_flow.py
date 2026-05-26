@@ -6,16 +6,13 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from langchain_core.tools import tool   # decorator @tool
 import pandas as pd
-from data.fetcher import _mock_sector_flow, get_sector_flow
-from data.db import get_latest_sector_flow, save_sector_flow
-
 
 
 @tool
 def analyze_sector_flow(use_mock: bool = False) -> dict:
     """
     Phân tích dòng tiền luân chuyển giữa các ngành trên thị trường
-    chứng khoán Việt Nam hôm nay.
+    chứng khoán Việt Nam hôm nay (VN100 + VN30, dữ liệu thực từ price_board).
 
     Trả về:
     - top_inflow: 3 ngành được mua vào mạnh nhất
@@ -24,18 +21,16 @@ def analyze_sector_flow(use_mock: bool = False) -> dict:
     - summary: đoạn tóm tắt ngắn gọn
 
     Args:
-        use_mock: True = dùng dữ liệu giả để test
+        use_mock: không dùng nữa, giữ lại để tương thích
     """
-    # Lấy dữ liệu (mock hoặc thật)
-    if use_mock:
+    from data.market_fetcher import get_sector_flow_data
+    sectors = get_sector_flow_data()
+
+    # Chuyển list[dict] → DataFrame để dùng lại logic cũ
+    df = pd.DataFrame(sectors)
+    if df.empty or "total_value_bil" not in df.columns:
+        from data.fetcher import _mock_sector_flow
         df = _mock_sector_flow()
-    else:
-        # Thử lấy từ DB trước (nhanh hơn)
-        df = get_latest_sector_flow()
-        if df.empty:
-            df = get_sector_flow()          # gọi API nếu DB trống
-            if df.empty:
-                df = _mock_sector_flow()    # fallback cuối cùng
 
     df_sorted = df.sort_values("money_flow_score", ascending=False)
 
