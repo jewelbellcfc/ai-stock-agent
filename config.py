@@ -13,7 +13,12 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")   # đọc từ .env
 TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")     # đọc từ .env
 ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY", "")    # đọc từ .env  # https://console.anthropic.com
 OPENAI_API_KEY     = os.getenv("OPENAI_API_KEY", "")       # đọc từ .env
-# OPENAI_API_KEY  = "YOUR_OPENAI_KEY_HERE"       # nếu dùng GPT
+
+# --- MBS API ---
+MBS_CLIENT_ID     = os.getenv("MBS_CLIENT_ID", "")
+MBS_CLIENT_SECRET = os.getenv("MBS_CLIENT_SECRET", "")
+MBS_ACCOUNT_NO    = os.getenv("MBS_ACCOUNT_NO", "")
+MBS_USERNAME      = os.getenv("MBS_USERNAME", "")
 
 # --- Dữ liệu ---
 # Danh sách ngành muốn theo dõi (icb_code của HOSE)
@@ -36,3 +41,9 @@ HISTORY_DAYS = 30
 
 # --- Database ---
 DB_PATH = "data/stock_data.db"
+
+# --- MBS API ---
+MBS_TOKEN          = os.getenv("MBS_TOKEN", "")
+MBS_MASTER_ACCOUNT = os.getenv("MBS_MASTER_ACCOUNT", "777845")
+MBS_ACCOUNT        = os.getenv("MBS_ACCOUNT", "7778458")
+

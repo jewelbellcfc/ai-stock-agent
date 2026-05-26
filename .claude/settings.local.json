@@ -17,7 +17,14 @@
       "Bash(python -X utf8 test_phase3.py)",
       "Bash(python -X utf8 -c \"from data.db import init_db; init_db\\(\\)\")",
       "Bash(taskkill *)",
-      "PowerShell(Get-Process *)"
+      "PowerShell(Get-Process *)",
+      "Bash(Get-ChildItem -Path \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\" -Recurse -Force)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(python -c ' *)",
+      "Bash(python main.py --portfolio)",
+      "PowerShell(cd \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\"; $env:PYTHONIOENCODING = \"utf-8\"; python main.py --portfolio 2>&1)",
+      "PowerShell(cd \"F:\\\\gitlab.mbs.com.vn\\\\AI-Research\\\\ai-stock-agent\"; $env:PYTHONIOENCODING = \"utf-8\"; python main.py --agent 2>&1)"
     ]
   }
 }

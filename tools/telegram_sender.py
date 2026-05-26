@@ -1,13 +1,4 @@
-# tools/telegram_sender.py
-# -------------------------------------------------------------
-# PHASE 2 — MCP Tool: Gửi tin nhắn Telegram
-#
-# Kiến thức mới:
-#   - requests (gọi HTTP API)
-#   - async/await cơ bản (telegram bot dùng bất đồng bộ)
-#   - String formatting nâng cao
-#   - Markdown trong Telegram (bold, italic, code)
-# -------------------------------------------------------------
+# tools/telegram_sender.py — Gửi tin nhắn Telegram
 
 import os
 import sys
@@ -19,9 +10,6 @@ from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 from datetime import datetime
 
 
-# =============================================================
-# HÀM NỘI BỘ: Gửi tin nhắn (dùng requests thay vì async)
-# =============================================================
 
 def _send_message(text: str, parse_mode: str = "HTML") -> bool:
     """
@@ -137,9 +125,7 @@ def _format_portfolio_report(portfolio_analysis: list) -> str:
     return "\n".join(lines)
 
 
-# =============================================================
-# TOOL 1: Gửi báo cáo thị trường
-# =============================================================
+
 @tool
 def send_market_report(sector_analysis: dict) -> bool:
     """
@@ -152,9 +138,7 @@ def send_market_report(sector_analysis: dict) -> bool:
     return _send_message(message)
 
 
-# =============================================================
-# TOOL 2: Gửi phân tích danh mục
-# =============================================================
+
 @tool
 def send_portfolio_report(portfolio_analysis: list) -> bool:
     """
@@ -167,9 +151,7 @@ def send_portfolio_report(portfolio_analysis: list) -> bool:
     return _send_message(message)
 
 
-# =============================================================
-# TOOL 3: Gửi cảnh báo tùy chỉnh
-# =============================================================
+
 @tool
 def send_alert(message: str, level: str = "info") -> bool:
     """
@@ -184,56 +166,3 @@ def send_alert(message: str, level: str = "info") -> bool:
     now   = datetime.now().strftime("%H:%M")
     text  = f"{icon} <b>[{level.upper()}] {now}</b>\n{message}"
     return _send_message(text)
-
-
-# =============================================================
-# HƯỚNG DẪN TẠO BOT TELEGRAM
-# =============================================================
-SETUP_GUIDE = """
-Cách lấy Telegram Bot Token:
-1. Mở Telegram → tìm @BotFather
-2. Gửi: /newbot
-3. Đặt tên bot, đặt username (kết thúc bằng 'bot')
-4. Copy token dán vào config.py → TELEGRAM_BOT_TOKEN
-
-Cách lấy Chat ID:
-1. Tìm @userinfobot trên Telegram
-2. Gửi /start
-3. Copy "Id:" dán vào config.py → TELEGRAM_CHAT_ID
-"""
-
-
-# =============================================================
-# CHẠY THỬ
-# =============================================================
-if __name__ == "__main__":
-    print(SETUP_GUIDE)
-    print("=" * 55)
-    print("TEST: Gửi báo cáo thị trường (mock)")
-    print("=" * 55)
-
-    # Dữ liệu mẫu
-    mock_sector = {
-        "market_sentiment": "🟢 Tích cực",
-        "total_market_bil": 18500,
-        "positive_ratio":   65.0,
-        "summary":          "Dòng tiền tập trung vào Ngân hàng, thị trường tích cực.",
-        "top_inflow": [
-            {"sector": "Ngân hàng",     "total_value_bil": 4500, "avg_change_pct": 1.2},
-            {"sector": "Chứng khoán",   "total_value_bil": 1800, "avg_change_pct": 2.1},
-            {"sector": "Công nghệ",     "total_value_bil": 900,  "avg_change_pct": 0.8},
-        ],
-        "top_outflow": [
-            {"sector": "Thép",          "total_value_bil": 950,  "avg_change_pct": -1.3},
-            {"sector": "Bất động sản",  "total_value_bil": 2100, "avg_change_pct": -0.5},
-            {"sector": "Dầu khí",       "total_value_bil": 600,  "avg_change_pct":  0.8},
-        ],
-    }
-
-    send_market_report.invoke({"sector_analysis": mock_sector})
-
-    print("TEST: Gửi cảnh báo")
-    send_alert.invoke({
-        "message": "HPG vừa vượt MA20 với khối lượng lớn!",
-        "level": "warning"
-    })

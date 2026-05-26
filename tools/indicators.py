@@ -1,13 +1,4 @@
-# tools/indicators.py
-# -------------------------------------------------------------
-# PHASE 2 — MCP Tool: Chỉ báo kỹ thuật (RSI, MA, tín hiệu)
-#
-# Kiến thức mới:
-#   - List comprehension: [x*2 for x in my_list]
-#   - zip(), enumerate()
-#   - Tính toán thuần Python (không cần thư viện ngoài cho phần này)
-#   - Return nhiều kiểu dữ liệu trong dict
-# -------------------------------------------------------------
+# tools/indicators.py — Chỉ báo kỹ thuật (RSI, MA, tín hiệu)
 
 import os
 import sys
@@ -19,40 +10,19 @@ from data.db import get_price_history_from_db
 from data.fetcher import get_price_history
 
 
-# =============================================================
-# HÀM NỘI BỘ (không phải tool — chỉ dùng bên trong file này)
-# =============================================================
 
 def _calc_ma(prices: list, period: int) -> list:
-    """
-    Tính Moving Average (trung bình động).
-    Ví dụ MA20 = trung bình 20 phiên gần nhất.
-
-    prices: list giá đóng cửa
-    period: số phiên tính trung bình
-    """
     ma = []
     for i in range(len(prices)):
         if i < period - 1:
-            ma.append(None)   # chưa đủ dữ liệu
+            ma.append(None)
         else:
-            # Lấy `period` phần tử gần nhất, tính trung bình
             window = prices[i - period + 1 : i + 1]
             ma.append(sum(window) / period)
     return ma
 
 
 def _calc_rsi(prices: list, period: int = 14) -> float:
-    """
-    Tính RSI (Relative Strength Index) — chỉ báo đà tăng/giảm.
-
-    RSI > 70: vùng mua quá mức (có thể điều chỉnh)
-    RSI < 30: vùng bán quá mức (có thể hồi phục)
-    RSI 40-60: trung tính
-
-    Công thức: RSI = 100 - 100/(1 + RS)
-    RS = trung bình tăng / trung bình giảm trong N phiên
-    """
     if len(prices) < period + 1:
         return None
 
@@ -90,9 +60,7 @@ def _interpret_rsi(rsi: float) -> str:
     return "🚨 Bán quá mức (oversold) — có thể hồi phục"
 
 
-# =============================================================
-# TOOL 1: Phân tích kỹ thuật một mã cổ phiếu
-# =============================================================
+
 @tool
 def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
     """
@@ -104,7 +72,6 @@ def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
         use_mock: True = dùng dữ liệu giả để test
     """
     if use_mock:
-        # Tạo dữ liệu giả 60 phiên để test
         random.seed(42)
         base = 85000
         prices = [base]
@@ -112,7 +79,6 @@ def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
             change = random.uniform(-0.02, 0.025)
             prices.append(round(prices[-1] * (1 + change)))
     else:
-        # Lấy từ DB trước
         df = get_price_history_from_db(ticker, days=60)
         if df.empty:
             df = get_price_history(ticker, days=60)
@@ -123,7 +89,6 @@ def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
     if len(prices) < 20:
         return {"error": f"Cần ít nhất 20 phiên, chỉ có {len(prices)}"}
 
-    # ── Tính chỉ báo ────────────────────────────────────────
     current_price = prices[-1]
     prev_price    = prices[-2]
     price_change  = (current_price - prev_price) / prev_price * 100
@@ -134,7 +99,6 @@ def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
     ma50 = next((v for v in reversed(ma50_list) if v is not None), None)
     rsi  = _calc_rsi(prices)
 
-    # ── Tín hiệu xu hướng ───────────────────────────────────
     signals = []
 
     if ma20 and ma50:
@@ -173,11 +137,9 @@ def analyze_stock_technical(ticker: str, use_mock: bool = False) -> dict:
     }
 
 
-# =============================================================
-# TOOL 2: Phân tích nhanh nhiều mã cùng lúc
-# =============================================================
+
 @tool
-def scan_portfolio_signals(tickers: list, use_mock: bool = True) -> list:
+def scan_portfolio_signals(tickers: list, use_mock: bool = False) -> list:
     """
     Quét tín hiệu kỹ thuật nhanh cho danh sách mã cổ phiếu.
     Trả về danh sách xếp theo mức độ cần chú ý.
@@ -207,34 +169,3 @@ def scan_portfolio_signals(tickers: list, use_mock: bool = True) -> list:
     results.sort(key=lambda x: x["priority"], reverse=True)
     return results
 
-
-# =============================================================
-# CHẠY THỬ
-# =============================================================
-if __name__ == "__main__":
-    print("=" * 55)
-    print("TEST: analyze_stock_technical (mock)")
-    print("=" * 55)
-
-    result = analyze_stock_technical.invoke({"ticker": "VCB", "use_mock": True})
-
-    print(f"\n📌 {result['ticker']} — Giá: {result['current_price']:,}đ "
-          f"({result['price_change']:+.2f}%)")
-    print(f"   RSI: {result['rsi']} → {result['rsi_signal']}")
-    print(f"   MA20: {result['ma20']:,}đ | MA50: {result['ma50']:,}đ" if result['ma50'] else "")
-    print(f"\n📋 Tín hiệu:")
-    for sig in result["signals"]:
-        print(f"   {sig}")
-
-    print("\n" + "=" * 55)
-    print("TEST: scan_portfolio_signals")
-    print("=" * 55)
-    scan = scan_portfolio_signals.invoke({
-        "tickers": ["VCB", "HPG", "FPT"],
-        "use_mock": True
-    })
-    for s in scan:
-        print(f"\n  {s['ticker']:6s} | RSI {s['rsi']:5.1f} | "
-              f"{s['price_change']:+.2f}% | Priority: {s['priority']}")
-        for sig in s["signals"][:2]:   # chỉ in 2 tín hiệu đầu
-            print(f"         {sig}")

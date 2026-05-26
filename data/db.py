@@ -1,13 +1,4 @@
-# data/db.py
-# -------------------------------------------------------------
-# PHASE 1 — Lưu và đọc dữ liệu từ SQLite
-#
-# Kiến thức Python bạn sẽ học ở file này:
-#   - sqlite3 (database nhẹ, không cần cài server)
-#   - pandas to_sql / read_sql (lưu/đọc DataFrame)
-#   - context manager (with ... as ...)
-#   - datetime (xử lý ngày tháng)
-# -------------------------------------------------------------
+# data/db.py — SQLite: lưu và đọc dữ liệu thị trường + danh mục
 
 import os
 import sys
@@ -19,41 +10,32 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import DB_PATH
 
 
-# =============================================================
-# HÀM KHỞI TẠO DATABASE
-# =============================================================
+
 def init_db():
-    """
-    Tạo file database và các bảng nếu chưa có.
-    Gọi hàm này một lần khi chạy dự án lần đầu.
-    """
-    # Tạo thư mục data/ nếu chưa có
+    """Tạo file database và các bảng nếu chưa có."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-    # "with" đảm bảo kết nối DB luôn được đóng dù có lỗi hay không
     with sqlite3.connect(DB_PATH) as conn:
         conn.executescript("""
-            -- Bảng lưu lịch sử giá cổ phiếu
             CREATE TABLE IF NOT EXISTS price_history (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticker      TEXT    NOT NULL,
-                trade_date  TEXT    NOT NULL,   -- định dạng YYYY-MM-DD
+                trade_date  TEXT    NOT NULL,
                 open        REAL,
                 high        REAL,
                 low         REAL,
                 close       REAL,
                 volume      INTEGER,
                 created_at  TEXT    DEFAULT (datetime('now', 'localtime')),
-                UNIQUE(ticker, trade_date)      -- không lưu trùng
+                UNIQUE(ticker, trade_date)
             );
 
-            -- Bảng lưu dòng tiền ngành mỗi ngày
             CREATE TABLE IF NOT EXISTS sector_flow (
                 id                INTEGER PRIMARY KEY AUTOINCREMENT,
                 trade_date        TEXT NOT NULL,
                 sector            TEXT NOT NULL,
-                total_value_bil   REAL,   -- tỷ đồng
-                avg_change_pct    REAL,   -- % thay đổi trung bình
+                total_value_bil   REAL,
+                avg_change_pct    REAL,
                 advance_count     INTEGER,
                 decline_count     INTEGER,
                 money_flow_score  REAL,
@@ -61,33 +43,29 @@ def init_db():
                 UNIQUE(trade_date, sector)
             );
 
-            -- Bảng lưu snapshot danh mục của bạn
             CREATE TABLE IF NOT EXISTS portfolio_snapshot (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 snapshot_date TEXT NOT NULL,
                 ticker      TEXT NOT NULL,
                 quantity    INTEGER,
-                avg_cost    REAL,   -- giá vốn bình quân
+                avg_cost    REAL,
                 note        TEXT,
                 created_at  TEXT DEFAULT (datetime('now', 'localtime'))
             );
 
-            -- Bảng lưu lịch sử báo cáo đã gửi Telegram
             CREATE TABLE IF NOT EXISTS report_log (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 report_date TEXT NOT NULL,
-                report_type TEXT,   -- 'market', 'portfolio', 'alert'
+                report_type TEXT,
                 content     TEXT,
-                sent_ok     INTEGER DEFAULT 0,   -- 1 nếu gửi thành công
+                sent_ok     INTEGER DEFAULT 0,
                 created_at  TEXT DEFAULT (datetime('now', 'localtime'))
             );
         """)
         print(f"[db] Database khởi tạo xong: {DB_PATH}")
 
 
-# =============================================================
-# LƯU DỮ LIỆU
-# =============================================================
+
 def save_price_history(df: pd.DataFrame):
     """
     Lưu DataFrame lịch sử giá vào bảng price_history.
@@ -161,9 +139,7 @@ def save_portfolio_snapshot(portfolio: list, snapshot_date: str = None):
     print(f"[db] Đã lưu {len(portfolio)} vị thế vào portfolio_snapshot")
 
 
-# =============================================================
-# ĐỌC DỮ LIỆU
-# =============================================================
+
 def get_latest_sector_flow() -> pd.DataFrame:
     """Lấy dòng tiền ngành của ngày gần nhất trong DB."""
     with sqlite3.connect(DB_PATH) as conn:
@@ -205,31 +181,3 @@ def log_report(report_type: str, content: str, sent_ok: bool = False):
             "INSERT INTO report_log (report_date, report_type, content, sent_ok) VALUES (?,?,?,?)",
             (today, report_type, content, 1 if sent_ok else 0)
         )
-
-
-# =============================================================
-# CHẠY THỬ TRỰC TIẾP (python data/db.py)
-# =============================================================
-if __name__ == "__main__":
-    print("Khởi tạo database...")
-    init_db()
-
-    print("\nLưu dữ liệu ngành mẫu...")
-    from fetcher import _mock_sector_flow
-    df_mock = _mock_sector_flow()
-    save_sector_flow(df_mock)
-
-    print("\nĐọc lại từ DB:")
-    df_read = get_latest_sector_flow()
-    print(df_read.to_string(index=False))
-
-    print("\nLưu danh mục mẫu...")
-    my_portfolio = [
-        {"ticker": "VCB",  "quantity": 1000, "avg_cost": 85000, "note": "nắm dài hạn"},
-        {"ticker": "HPG",  "quantity": 2000, "avg_cost": 26000, "note": "theo dõi"},
-        {"ticker": "FPT",  "quantity": 500,  "avg_cost": 118000, "note": "tech tăng trưởng"},
-    ]
-    save_portfolio_snapshot(my_portfolio)
-
-    print("\nDanh mục gần nhất:")
-    print(get_latest_portfolio().to_string(index=False))

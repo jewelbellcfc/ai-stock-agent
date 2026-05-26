@@ -1,13 +1,4 @@
-# tools/portfolio_analyzer.py
-# -------------------------------------------------------------
-# PHASE 4 — MCP Tool: Phân tích danh mục cá nhân
-#
-# Kiến thức mới bạn học ở file này:
-#   - Tính P&L (Profit & Loss): lãi/lỗ thực tế
-#   - Dict comprehension: {k: v for k, v in items}
-#   - round(), abs(), sum() nâng cao
-#   - Xử lý dữ liệu lồng nhau (nested dict/list)
-# -------------------------------------------------------------
+# tools/portfolio_analyzer.py — Phân tích danh mục cá nhân
 
 import sys, os, json
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -18,14 +9,9 @@ from data.db import get_price_history_from_db, save_portfolio_snapshot
 from datetime import datetime
 
 
-# =============================================================
-# HÀM NỘI BỘ: Lấy giá hiện tại của một mã
-# =============================================================
+
 def _get_current_price(ticker: str, use_mock: bool = False) -> float:
-    """
-    Lấy giá đóng cửa gần nhất của một mã.
-    Thử DB trước → vnstock API → mock nếu không có gì.
-    """
+    """Lấy giá đóng cửa gần nhất: DB → API → mock."""
     if use_mock:
         # Giá mock dựa trên seed cố định để test nhất quán
         mock_prices = {
@@ -56,11 +42,9 @@ def _get_current_price(ticker: str, use_mock: bool = False) -> float:
     return 0.0
 
 
-# =============================================================
-# TOOL 1: Tính P&L toàn bộ danh mục
-# =============================================================
+
 @tool
-def calculate_portfolio_pnl(holdings: list, use_mock: bool = True) -> dict:
+def calculate_portfolio_pnl(holdings: list, use_mock: bool = False) -> dict:
     """
     Tính lãi/lỗ (P&L) cho từng mã và toàn bộ danh mục.
 
@@ -145,11 +129,9 @@ def calculate_portfolio_pnl(holdings: list, use_mock: bool = True) -> dict:
     }
 
 
-# =============================================================
-# TOOL 2: Phân tích phân bổ danh mục theo ngành
-# =============================================================
+
 @tool
-def analyze_portfolio_allocation(holdings: list, use_mock: bool = True) -> dict:
+def analyze_portfolio_allocation(holdings: list, use_mock: bool = False) -> dict:
     """
     Phân tích tỷ trọng danh mục theo từng mã và theo ngành.
     Phát hiện rủi ro tập trung (một mã/ngành chiếm quá lớn).
@@ -220,9 +202,7 @@ def analyze_portfolio_allocation(holdings: list, use_mock: bool = True) -> dict:
     }
 
 
-# =============================================================
-# TOOL 3: Đọc file danh mục JSON
-# =============================================================
+
 @tool
 def load_portfolio_from_file(file_path: str = "portfolio/my_portfolio.json") -> dict:
     """
@@ -265,9 +245,7 @@ def load_portfolio_from_file(file_path: str = "portfolio/my_portfolio.json") -> 
     }
 
 
-# =============================================================
-# HÀM NỘI BỘ: Tạo summary text
-# =============================================================
+
 def _build_pnl_summary(results: list, total_pnl_pct: float) -> str:
     winning = [r for r in results if r["pnl_pct"] >= 0]
     losing  = [r for r in results if r["pnl_pct"] < 0]
@@ -286,55 +264,3 @@ def _build_pnl_summary(results: list, total_pnl_pct: float) -> str:
 
     return summary
 
-
-# =============================================================
-# CHẠY THỬ
-# =============================================================
-if __name__ == "__main__":
-    # Danh mục mẫu
-    sample_holdings = [
-        {"ticker": "VCB",  "quantity": 1000, "avg_cost": 85000,  "sector": "Ngân hàng"},
-        {"ticker": "HPG",  "quantity": 2000, "avg_cost": 26000,  "sector": "Thép"},
-        {"ticker": "FPT",  "quantity": 500,  "avg_cost": 118000, "sector": "Công nghệ"},
-        {"ticker": "MWG",  "quantity": 800,  "avg_cost": 70000,  "sector": "Bán lẻ"},
-    ]
-
-    print("=" * 55)
-    print("TEST 1: Tính P&L danh mục")
-    print("=" * 55)
-    pnl = calculate_portfolio_pnl.invoke({
-        "holdings": sample_holdings,
-        "use_mock": True
-    })
-    print(f"\n📊 {pnl['summary']}")
-    print(f"   Tổng vốn:    {pnl['total_cost']:>15,.0f} đ")
-    print(f"   Giá trị HT:  {pnl['total_value']:>15,.0f} đ")
-    print(f"   Lãi/lỗ:      {pnl['total_pnl']:>+15,.0f} đ\n")
-
-    for h in pnl["holdings"]:
-        print(f"   {h['ticker']:6s} | {h['current_price']:>8,}đ | "
-              f"P&L {h['pnl_pct']:>+6.1f}% | {h['signal']}")
-
-    print("\n" + "=" * 55)
-    print("TEST 2: Phân bổ danh mục")
-    print("=" * 55)
-    alloc = analyze_portfolio_allocation.invoke({
-        "holdings": sample_holdings,
-        "use_mock": True
-    })
-    print(f"\n💼 {alloc['num_stocks']} mã / {alloc['num_sectors']} ngành")
-    print(f"   Tổng giá trị: {alloc['total_value']:,.0f} đ\n")
-    print("   Phân bổ ngành:")
-    for s in alloc["sector_allocation"]:
-        bar = "█" * int(s["weight_pct"] / 5)
-        print(f"   {s['sector']:20s} {bar:10s} {s['weight_pct']:>5.1f}%")
-    print("\n   Rủi ro:")
-    for r in alloc["concentration_risks"]:
-        print(f"   {r}")
-
-    print("\n" + "=" * 55)
-    print("TEST 3: Đọc file JSON")
-    print("=" * 55)
-    result = load_portfolio_from_file.invoke({})
-    print(f"\n{result['message']}")
-    print(f"   Mã: {result.get('tickers', [])}")
